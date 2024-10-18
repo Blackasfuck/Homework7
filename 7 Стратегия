@@ -1,0 +1,74 @@
+using System;
+
+public interface IPaymentStrategy
+{
+    void Pay(decimal amount);
+}
+
+public class CreditCardPayment : IPaymentStrategy
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine($"Оплата {amount} через банковскую карту.");
+    }
+}
+
+public class PayPalPayment : IPaymentStrategy
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine($"Оплата {amount} через PayPal.");
+    }
+}
+
+public class CryptoPayment : IPaymentStrategy
+{
+    public void Pay(decimal amount)
+    {
+        Console.WriteLine($"Оплата {amount} криптовалютой.");
+    }
+}
+
+public class PaymentContext
+{
+    private IPaymentStrategy _paymentStrategy;
+
+    public void SetPaymentStrategy(IPaymentStrategy strategy)
+    {
+        _paymentStrategy = strategy;
+    }
+
+    public void ExecutePayment(decimal amount)
+    {
+        _paymentStrategy.Pay(amount);
+    }
+}
+
+public class Client
+{
+    public static void Main(string[] args)
+    {
+        PaymentContext context = new PaymentContext();
+
+        Console.WriteLine("Выберите способ оплаты: 1 - Карта, 2 - PayPal, 3 - Криптовалюта");
+        string choice = Console.ReadLine();
+
+        switch (choice)
+        {
+            case "1":
+                context.SetPaymentStrategy(new CreditCardPayment());
+                break;
+            case "2":
+                context.SetPaymentStrategy(new PayPalPayment());
+                break;
+            case "3":
+                context.SetPaymentStrategy(new CryptoPayment());
+                break;
+            default:
+                Console.WriteLine("Некорректный выбор.");
+                return;
+        }
+
+        context.ExecutePayment(100.00m);
+    }
+}
