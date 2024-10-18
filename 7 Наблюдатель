@@ -1,0 +1,93 @@
+using System;
+using System.Collections.Generic;
+
+public interface IObserver
+{
+    void Update(decimal usdRate, decimal eurRate);
+}
+
+public interface ISubject
+{
+    void AddObserver(IObserver observer);
+    void RemoveObserver(IObserver observer);
+    void NotifyObservers();
+}
+
+public class CurrencyExchange : ISubject
+{
+    private List<IObserver> _observers = new List<IObserver>();
+    private decimal _usdRate;
+    private decimal _eurRate;
+
+    public void SetRates(decimal usdRate, decimal eurRate)
+    {
+        _usdRate = usdRate;
+        _eurRate = eurRate;
+        NotifyObservers();
+    }
+
+    public void AddObserver(IObserver observer)
+    {
+        _observers.Add(observer);
+    }
+
+    public void RemoveObserver(IObserver observer)
+    {
+        _observers.Remove(observer);
+    }
+
+    public void NotifyObservers()
+    {
+        foreach (var observer in _observers)
+        {
+            observer.Update(_usdRate, _eurRate);
+        }
+    }
+}
+
+public class BankObserver : IObserver
+{
+    public void Update(decimal usdRate, decimal eurRate)
+    {
+        Console.WriteLine($"Банк: обновлены курсы валют. USD: {usdRate}, EUR: {eurRate}");
+    }
+}
+
+public class StockMarketObserver : IObserver
+{
+    public void Update(decimal usdRate, decimal eurRate)
+    {
+        Console.WriteLine($"Фондовый рынок: новые курсы валют. USD: {usdRate}, EUR: {eurRate}");
+    }
+}
+
+public class MobileAppObserver : IObserver
+{
+    public void Update(decimal usdRate, decimal eurRate)
+    {
+        Console.WriteLine($"Мобильное приложение: курсы валют обновлены. USD: {usdRate}, EUR: {eurRate}");
+    }
+}
+
+public class Client
+{
+    public static void Main(string[] args)
+    {
+        CurrencyExchange currencyExchange = new CurrencyExchange();
+
+        IObserver bank = new BankObserver();
+        IObserver stockMarket = new StockMarketObserver();
+        IObserver mobileApp = new MobileAppObserver();
+
+        currencyExchange.AddObserver(bank);
+        currencyExchange.AddObserver(stockMarket);
+        currencyExchange.AddObserver(mobileApp);
+
+        currencyExchange.SetRates(74.50m, 89.20m);
+
+        Console.WriteLine("Удаляем наблюдателя фондового рынка...");
+        currencyExchange.RemoveObserver(stockMarket);
+
+        currencyExchange.SetRates(75.00m, 90.00m);
+    }
+}
